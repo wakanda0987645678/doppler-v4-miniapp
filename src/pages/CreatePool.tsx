@@ -27,12 +27,27 @@ export default function CreatePool() {
     minUnlockDate: '',
   })
 
+  const [deployStatus, setDeployStatus] = useState<'idle' | 'simulating' | 'creating' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState<string>('')
+
   const handleDeploy = async (e: React.FormEvent) => {
-    if (!walletClient) throw new Error("Wallet client not found");
+    if (!walletClient) {
+      setErrorMessage("Please connect your wallet first");
+      return;
+    }
     e.preventDefault();
     setIsDeploying(true);
+    setDeployStatus('simulating');
+    setErrorMessage('');
+    
     try {
-      if (!account.address) throw new Error("Account address not found");
+      if (!account.address) {
+        throw new Error("Please connect your wallet");
+      }
+      
+      if (!formData.tokenName || !formData.tokenSymbol) {
+        throw new Error("Token name and symbol are required");
+      }
 
       const block = await getBlock(walletClient)
       
@@ -103,10 +118,36 @@ export default function CreatePool() {
       }
       const { createParams, hook, token } = rwFactory.buildConfig({ ...deployParams, liquidityMigratorData: liqData }, addresses)
       console.log(hook, token)
-      await rwFactory.simulateCreate(createParams)
-      await rwFactory.create(createParams)
-    } catch (error) {
+
+      try {
+        setDeployStatus('simulating');
+        await rwFactory.simulateCreate(createParams)
+        
+        setDeployStatus('creating');
+        const tx = await rwFactory.create(createParams)
+        
+        // Wait for transaction confirmation
+        const receipt = await walletClient.waitForTransactionReceipt({ hash: tx })
+        
+        if (receipt.status === 'success') {
+          setDeployStatus('idle');
+          // Navigate to the pool details page or show success message
+          alert(`Token pool created successfully!\nToken Address: ${token}\nHook Address: ${hook}`);
+        } else {
+          throw new Error('Transaction failed');
+        }
+      } catch (error: any) {
+        if (error.message) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('Failed to create token pool. Please try again.');
+        }
+        setDeployStatus('error');
+      }
+    } catch (error: any) {
       console.error("Deployment failed:", error);
+      setErrorMessage(error.message || 'Failed to create token pool');
+      setDeployStatus('error');
     } finally {
       setIsDeploying(false);
     }
@@ -211,17 +252,28 @@ export default function CreatePool() {
                 </div>
               )}
             </div>
+            {errorMessage && (
+              <div className="p-4 mb-4 text-sm rounded-md bg-destructive/20 text-destructive-foreground">
+                {errorMessage}
+              </div>
+            )}
+            
             <div className="flex gap-4 pt-4">
               <Button 
                 type="submit" 
                 className="flex-1 bg-primary/90 hover:bg-primary/80"
+                disabled={deployStatus !== 'idle'}
               >
-                Create Token
+                {deployStatus === 'idle' && 'Create Token'}
+                {deployStatus === 'simulating' && 'Simulating...'}
+                {deployStatus === 'creating' && 'Creating Token...'}
+                {deployStatus === 'error' && 'Try Again'}
               </Button>
               <Link to="/" className="flex-1">
                 <Button 
                   variant="outline" 
                   className="w-full border-primary/40 hover:bg-primary/10"
+                  disabled={deployStatus === 'simulating' || deployStatus === 'creating'}
                 >
                   Cancel
                 </Button>

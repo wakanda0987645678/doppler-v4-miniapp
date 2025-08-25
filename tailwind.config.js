@@ -2,13 +2,17 @@
 export default {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   prefix: "",
   theme: {
+    fontFamily: {
+      sans: ['Poppins Rounded', 'system-ui', 'sans-serif'],
+    },
     container: {
       center: true,
       padding: "2rem",

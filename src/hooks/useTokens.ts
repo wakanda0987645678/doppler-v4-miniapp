@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPools } from "@/utils/graphql";
+import { getTokens } from "@/utils/graphql";
 
-export const usePools = () => {
+export const useTokens = () => {
   return useQuery({
-    queryKey: ["pools"],
+    queryKey: ["tokens"],
     queryFn: async () => {
       try {
-        const pools = await getPools();
-        console.log("Fetched pools:", pools);
-        return pools;
+        const tokens = await getTokens();
+        console.log("Fetched tokens:", tokens); // For debugging
+        return tokens;
       } catch (error) {
-        console.error("Failed to fetch pools:", error);
+        console.error("Failed to fetch tokens:", error);
         throw error;
       }
     },

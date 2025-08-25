@@ -1,0 +1,62 @@
+@layer components {
+  /* Navigation styles */
+  .nav-item {
+    @apply flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-youtube-dark-hover transition-colors text-sm cursor-pointer;
+  }
+
+  .nav-item.active {
+    @apply bg-gray-100 dark:bg-youtube-dark-hover font-medium;
+  }
+
+  .sidebar-text {
+    @apply ml-6;
+  }
+
+  .sidebar-collapsed .sidebar-text {
+    @apply hidden;
+  }
+
+  /* Form styles */
+  .form-card {
+    @apply relative z-10;
+  }
+
+  .form-input {
+    @apply relative z-20;
+  }
+
+  /* Fix for input interaction */
+  input, textarea, button {
+    @apply relative z-20 pointer-events-auto;
+  }
+
+  /* Category chips */
+  .category-chip {
+    @apply px-3 py-1 bg-gray-100 dark:bg-youtube-dark-secondary rounded-full text-sm whitespace-nowrap hover:bg-gray-200 dark:hover:bg-youtube-dark-hover transition-colors cursor-pointer;
+  }
+
+  .category-chip.active {
+    @apply bg-black dark:bg-white text-white dark:text-black;
+  }
+
+  /* Layout utilities */
+  .sidebar-expanded {
+    width: var(--sidebar-width);
+  }
+
+  .sidebar-collapsed {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  .content-expanded {
+    margin-left: var(--sidebar-width);
+  }
+
+  .content-collapsed {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+
+  .header-height {
+    height: var(--header-height);
+  }
+}
